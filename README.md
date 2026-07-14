@@ -5,7 +5,7 @@ Small clinic reservation & inquiry management cloud system built on OutSystems P
 
 ## Live App URL
 Clinic Management app (OutSystems):
-https://personal-p2heapy9-dev.outsystems.app/ClinicManagementSystem/Login
+https://personal-p2heapy9-dev.outsystems.app/ClinicManagementSystem/
 
 Use the sample users to log in:
 - Log in as Matthew Shelton (Admin)
