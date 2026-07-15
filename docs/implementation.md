@@ -15,6 +15,14 @@
   - Doctor (Text)
   - Status (Enum: Scheduled / Visited / Canceled)
 
+- Inquiry
+  - Id (UUID)
+  - DateTime (DateTime)
+  - Subject (Text)
+  - PatientNameOrContact (Text)
+  - Status (Enum: New / In Progress / Resolved)
+  - Notes (Long Text)
+
 ## Screens
 
 - Patients
@@ -23,11 +31,20 @@
 
 - Reservations
   - List reservations with Patient, DateTime, Department, Doctor, Status
-  - Filter by status (Any / Scheduled / Visited / Canceled)
+  - Filter by status (Any / Canceled / Scheduled / Visited)
+  - Open popup form to create and edit reservations
 
-- Reservation detail / edit
-  - Show full details of a reservation
-  - Update fields and change Status using "Mark as Visited", etc.
+- Reservation edit (popup)
+  - Show full details of a reservation (DateTime, Department, Doctor, Patient, Status)
+  - Update fields and change Status (Scheduled / Visited / Canceled)
+
+- Inquiries
+  - List inquiries with DateTime, Subject, PatientNameOrContact, Status
+  - Filter by status (Any / New / In Progress / Resolved)
+  - Open popup form to create and edit inquiries
+
+- Inquiry edit (popup)
+  - Create and edit inquiries (DateTime, Subject, PatientNameOrContact, Status, Notes)
 
 ## Reservation save flow (pseudo code)
 
