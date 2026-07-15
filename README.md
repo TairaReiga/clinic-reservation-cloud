@@ -1,11 +1,11 @@
-clinic-reservation-cloud ￼
+#clinic-reservation-cloud ￼
 小規模クリニック向け 予約・問い合わせ管理クラウドシステム
 
-Overview（概要） ￼
+##Overview（概要） ￼
 OutSystems Personal Edition 上に構築した、小規模クリニック向けの予約・問い合わせ管理クラウドシステム。
 患者の予約情報と問い合わせ情報を、1つのクラウドアプリ上で一元管理することを目的としている。
 
-Live App URL ￼
+##Live App URL ￼
 Clinic Management app（OutSystems）:
 https://personal-p2heapy9-dev.outsystems.app/ClinicManagementSystem/Login
 
@@ -13,7 +13,7 @@ https://personal-p2heapy9-dev.outsystems.app/ClinicManagementSystem/Login
 - Log in as Matthew Shelton（Admin）
 - Log in as Jesse Hernandez（Clinic Staff）
 
-Features（機能） ￼
+##Features（機能） ￼
 - 患者管理（Patient management）
  - 患者一覧（Patients画面）：氏名・電話番号の一覧表示
  - シンプルなフォームからの新規患者登録（Name, Phone）
