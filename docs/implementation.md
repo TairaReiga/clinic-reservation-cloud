@@ -1,21 +1,18 @@
-# Implementation details
+# Implementation details(実装の詳細)
 
-## Data model
-
-- Patient
+## Data model(データモデル)
+- Patient（患者）
   - Id (UUID)
   - Name (Text)
   - Phone (Text)
-
-- Reservation
+- Reservation（予約）
   - Id (UUID)
   - Patient (Foreign key -> Patient)
   - DateTime (DateTime)
   - Department (Text)
   - Doctor (Text)
   - Status (Enum: Scheduled / Visited / Canceled)
-
-- Inquiry
+- Inquiry（問い合わせ）
   - Id (UUID)
   - DateTime (DateTime)
   - Subject (Text)
@@ -23,34 +20,32 @@
   - Status (Enum: New / In Progress / Resolved)
   - Notes (Long Text)
 
-## Screens
-
+## Screens(画面構成)
 - Patients
-  - List existing patients (Name, Phone)
-  - Add new patient via form (Name, Phone)
-
+ - 既存患者の一覧表示（Name, Phone）
+ - フォームから新規患者を追加（Name, Phone）
+ - 
 - Reservations
-  - List reservations with Patient, DateTime, Department, Doctor, Status
-  - Filter by status (Any / Canceled / Scheduled / Visited)
-  - Open popup form to create and edit reservations
-
-- Reservation edit (popup)
-  - Show full details of a reservation (DateTime, Department, Doctor, Patient, Status)
-  - Update fields and change Status (Scheduled / Visited / Canceled)
+ - 予約一覧を表示（Patient, DateTime, Department, Doctor, Status）
+ - ステータスでの絞り込み（Any / Canceled / Scheduled / Visited）
+ - 予約の新規作成・編集用ポップアップフォームを開く
+   
+- Reservation edit（予約編集ポップアップ）
+ - 1件分の予約詳細を表示（DateTime, Department, Doctor, Patient, Status）
+ - 各項目を更新し、ステータス（Scheduled / Visited / Canceled）を変更可能
 
 - Inquiries
-  - List inquiries with DateTime, Subject, PatientNameOrContact, Status
-  - Filter by status (Any / New / In Progress / Resolved)
-  - Open popup form to create and edit inquiries
+ - 問い合わせ一覧を表示（DateTime, Subject, PatientNameOrContact, Status）
+ - ステータスでの絞り込み（Any / New / In Progress / Resolved）
+ - 問い合わせの新規作成・編集用ポップアップフォームを開く
 
-- Inquiry edit (popup)
-  - Create and edit inquiries (DateTime, Subject, PatientNameOrContact, Status, Notes)
+- Inquiry edit（問い合わせ編集ポップアップ）
+ - 問い合わせの新規作成・編集（DateTime, Subject, PatientNameOrContact, Status, Notes）
 
-## Reservation save flow (pseudo code)
-
-1. User fills in reservation form (patient, datetime, department, doctor, status).
-2. On Save:
-   - If new reservation: create a new Reservation record.
-   - If editing: load existing Reservation record and update fields.
-3. Commit changes to the database.
-4. Redirect back to the Reservations list screen.
+## Reservation save flow ,pseudo code(予約保存処理の流れ)
+1. ユーザーが予約フォームに（patient, datetime, department, doctor, status）を入力する。
+2. Save 実行時：
+ - 新規予約の場合：新しい Reservation レコードを作成する。
+ - 編集の場合：既存の Reservation レコードを読み込み、各フィールドを更新する。
+3. 更新内容をデータベースに保存（コミット）する。
+4. 保存後、Reservations 一覧画面にリダイレクトする。
