@@ -1,29 +1,56 @@
 # clinic-reservation-cloud
+
 小規模クリニック向け 予約・問い合わせ管理クラウドシステム
 
-## Overview（概要） ￼
-OutSystems Personal Edition 上に構築した、小規模クリニック向けの予約・問い合わせ管理クラウドシステム。
-患者の予約情報と問い合わせ情報を、1つのクラウドアプリ上で一元管理することを目的としている。
+## Overview（概要）
 
-## Live App URL
-Clinic Management app（OutSystems）:
-https://personal-p2heapy9-dev.outsystems.app/ClinicManagementSystem/Login
+本リポジトリは、小規模クリニック向けの「予約・問い合わせ管理クラウドシステム」の実装をまとめたものである。  
+レポート5 で要件定義を行った内容に沿って、
 
-ログインには以下のサンプルユーザーを使用する：
-- Log in as Matthew Shelton（Admin）
-- Log in as Jesse Hernandez（Clinic Staff）
+- OutSystems Personal Edition 上に構築したプロトタイプ版
+- Docker コンテナ上で動作する Flask + SQLite 版（日本語UI）
 
-## Features（機能） ￼
-- 患者管理（Patient management）
- - 患者一覧（Patients画面）：氏名・電話番号の一覧表示
- - シンプルなフォームからの新規患者登録（Name, Phone）
+の 2 つの実装を含んでいる。
 
-- 予約管理（Reservation management）
- - 予約一覧：予約日時（DateTime）、患者（Patient）、診療科（Department）、担当医（Doctor）、ステータス（Status）の一覧表示
- - ステータスによる絞り込み（Any / Canceled / Scheduled / Visited）
- - 新規予約登録フォーム（New Reservation）：患者・日時・診療科・担当医・ステータスを入力して予約を作成／編集
+小規模クリニックで紙の予約帳や電話メモ、Excel で管理している予約・問い合わせ情報を、Webブラウザから利用できるクラウドアプリ上で一元管理し、受付業務の効率化と患者満足度の向上を目指す。
 
-- 問い合わせ管理（Inquiry management）
- - 問い合わせ一覧：受付日時（DateTime）、件名（Subject）、患者名または連絡先（PatientNameOrContact）、ステータス（Status）の一覧表示
- - ステータスによる絞り込み（Any / New / In Progress / Resolved）
- - 新規問い合わせ登録フォーム（New Inquiry）：日時・件名・患者／連絡先・ステータス・メモ（Notes）を入力して問い合わせを作成／編集
+---
+
+## 1. Docker + Flask 版（ローカル実行）
+
+### 概要
+
+- フレームワーク：Flask 3.0.3（Python 3.11）
+- DB：SQLite 3（コンテナ内ファイル `clinic.db`）
+- 実行環境：Docker コンテナ（Docker Desktop 上で起動）
+- ポート：`http://localhost:8000` でアクセス
+
+### 機能（日本語UI）
+
+- 患者管理
+  - 患者一覧：氏名・電話番号の一覧表示
+  - 新規患者登録フォーム（氏名・電話番号）
+
+- 予約管理
+  - 予約一覧：
+    - 予約日時、患者名、診療科、担当医、状態（予約中／来院済み／キャンセル）の表示
+    - 患者名での検索、状態（すべて／予約中／来院済み／キャンセル）タブによる絞り込み
+  - 予約登録／編集画面：
+    - 患者、予約日時、診療科、担当医、ステータス（Scheduled／Visited／Canceled）を入力・変更
+
+- 問い合わせ管理
+  - 問い合わせ一覧：
+    - 受付日時、件名、患者名または連絡先、状態（未対応／対応中／完了）の表示
+    - 状態タブ（すべて／未対応／対応中／完了）による絞り込み
+  - 問い合わせ登録／編集画面：
+    - 受付日時、件名、患者名または連絡先、状態（New／In Progress／Resolved）、メモ（Notes）を入力・変更
+
+- ログイン
+  - デモ用アカウントでログインして利用（例：`admin@example.com` / `Admin1234!`）
+  - 未ログイン時に `/patients` `/reservations` `/inquiries` にアクセスすると `/login` にリダイレクト
+
+### 起動方法（ローカル）
+
+```bash
+cd flask-app
+docker compose up --build
