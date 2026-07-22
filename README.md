@@ -23,7 +23,16 @@
 - フレームワーク：Flask 3.0.3（Python 3.11）
 - データベース：SQLite 3（コンテナ内ファイル `clinic.db`）
 - 実行環境：Docker コンテナ（Docker Desktop 上で起動）
-- アクセス URL：`http://localhost:8000`
+- ローカルアクセス URL：`http://localhost:8000`
+
+### Live App（デプロイ先）
+
+- ローカル環境（開発・デモ用）  
+  - URL：`http://localhost:8000`
+- クラウド環境（Render など）  
+  - URL：※ Render などにデプロイ後に追記予定（例：`https://xxxxx.onrender.com`）
+
+---
 
 ### 機能（日本語 UI）
 
@@ -74,8 +83,16 @@
 ## 2. ディレクトリ構成
 
 - `flask-app/`
-  - `app/`：Flask アプリケーション本体（`__init__.py`, `models.py`, `routes.py` など）
-  - `templates/`：HTML テンプレート（日本語 UI の画面一式）
+  - `app/`：Flask アプリケーション本体  
+    - `__init__.py`：アプリケーションファクトリ、DB 初期化、ログイン設定など  
+    - `models.py`：Patient / Reservation / Inquiry などのデータモデル定義  
+    - `routes.py`：ログイン／患者／予約／問い合わせの各ルート定義
+  - `templates/`：HTML テンプレート（日本語 UI の画面一式）  
+    - `login.html`：ログイン画面  
+    - `patients_list.html` / `patients_form.html`  
+    - `reservations_list.html` / `reservations_form.html`  
+    - `inquiries_list.html` / `inquiries_form.html`  
+    - `base.html`：共通レイアウト
   - `Dockerfile`：アプリケーションコンテナ用 Dockerfile
   - `docker-compose.yml`：ローカル開発用 Docker Compose 設定
   - `requirements.txt`：Python パッケージ一覧
