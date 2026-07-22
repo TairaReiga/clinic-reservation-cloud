@@ -1,0 +1,42 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flask-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run smoke tests
+        run: |
+          python - <<'EOF'
+          from app import create_app
+          app = create_app()
+          client = app.test_client()
+          r = client.post('/login', data={'email': 'admin@example.com', 'password': 'Admin1234!'})
+          assert r.status_code == 302
+          with client.session_transaction() as sess:
+              sess['user_email'] = 'admin@example.com'
+          assert client.get('/health').status_code == 200
+          assert client.get('/reservations').status_code == 200
+          print('OK')
+          EOF
+
+  # Render Blueprint 連携後、自動デプロイされます。
+  # 手動デプロイ: Render Dashboard → New → Blueprint → このリポジトリを選択

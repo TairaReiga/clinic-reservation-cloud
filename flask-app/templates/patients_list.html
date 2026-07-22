@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set active_tab = 'patients' %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">患者</h1>
+  <a href="{{ url_for('main.patients_new') }}" class="btn-primary">患者を追加</a>
+</div>
+
+<form method="get" class="toolbar-row">
+  <div class="search-box">
+    <input type="text" name="search" placeholder="検索" value="{{ search }}">
+    <span class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+  </div>
+</form>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>
+        氏名
+        <span class="sort-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5l-6 6h12z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 19l6-6H6z"/></svg>
+        </span>
+      </th>
+      <th>電話番号</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in patients %}
+    <tr>
+      <td>{{ p.name }}</td>
+      <td>{{ p.phone }}</td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="2" style="color: var(--text-muted);">患者が見つかりません。</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

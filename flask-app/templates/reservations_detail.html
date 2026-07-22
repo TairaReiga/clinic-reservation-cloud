@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% set active_tab = 'reservations' %}
+
+{% block extra_head %}
+<style>
+  .detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: white;
+    color: var(--green-dark);
+    border: 1px solid var(--green-dark);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .btn-outline:hover { background: var(--green-light); }
+
+  .status-progress {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 28px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .progress-step.active { color: var(--green-dark); font-weight: 600; }
+
+  .progress-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background: white;
+  }
+
+  .progress-step.active .progress-dot {
+    border-color: var(--green-dark);
+    background: var(--green-dark);
+    color: white;
+  }
+
+  .progress-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin: 0 12px;
+    max-width: 120px;
+  }
+
+  .detail-datetime-header {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--green-dark);
+    margin-bottom: 28px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 28px;
+  }
+
+  .detail-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .detail-field { margin-bottom: 16px; }
+
+  .detail-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .detail-value {
+    font-size: 15px;
+    color: var(--text-primary);
+  }
+
+  .clickable-datetime {
+    cursor: pointer;
+    color: var(--green-dark);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+  }
+
+  .clickable-datetime:hover { color: var(--green-hover); }
+
+  .datetime-edit-form {
+    display: none;
+    margin-top: 4px;
+  }
+
+  .datetime-edit-form.open { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .datetime-edit-form input {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .detail-image-section {
+    margin-top: 8px;
+  }
+
+  .detail-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    object-fit: cover;
+  }
+
+  .detail-image-placeholder {
+    width: 160px;
+    height: 120px;
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    background: #fafafa;
+  }
+
+  .detail-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .table-row-link { cursor: pointer; }
+  .table-row-link:hover td { background: #f5f5f5 !important; }
+
+  @media (max-width: 900px) {
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('main.reservations_list') }}" class="back-link">&lt; 戻る</a>
+
+<div class="detail-header">
+  <h1 class="page-title-sm" style="margin-bottom: 0;">予約詳細</h1>
+  <div class="detail-actions">
+    {% if reservation.status == 'Scheduled' %}
+      <form method="post" action="{{ url_for('main.reservations_cancel', reservation_id=reservation.id) }}" style="display:inline;">
+        <button type="submit" class="btn-primary">予約をキャンセル</button>
+      </form>
+      <form method="post" action="{{ url_for('main.reservations_visit', reservation_id=reservation.id) }}" style="display:inline;">
+        <button type="submit" class="btn-outline">来院済みにする</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="status-progress">
+  <div class="progress-step {% if reservation.status == 'Scheduled' %}active{% endif %}">
+    <span class="progress-dot">{% if reservation.status in ['Scheduled', 'Visited'] %}✓{% endif %}</span>
+    予約中
+  </div>
+  <div class="progress-line"></div>
+  <div class="progress-step {% if reservation.status == 'Visited' %}active{% endif %}">
+    <span class="progress-dot">{% if reservation.status == 'Visited' %}✓{% endif %}</span>
+    来院済み
+  </div>
+  <div class="progress-line"></div>
+  <div class="progress-step {% if reservation.status == 'Canceled' %}active{% endif %}">
+    <span class="progress-dot">{% if reservation.status == 'Canceled' %}✓{% endif %}</span>
+    キャンセル
+  </div>
+</div>
+
+<div class="detail-datetime-header">{{ reservation.datetime | fmt_datetime }}</div>
+
+<div class="detail-grid">
+  <div>
+    <div class="detail-section-title">予約情報</div>
+
+    <div class="detail-field">
+      <div class="detail-label">日時</div>
+      <div class="detail-value">
+        <span class="clickable-datetime" id="datetime-display" onclick="openDatetimeEdit()">
+          {{ reservation.datetime | fmt_datetime }}
+        </span>
+        <form class="datetime-edit-form" id="datetime-edit-form"
+              method="post"
+              action="{{ url_for('main.reservations_update_datetime', reservation_id=reservation.id) }}">
+          <input type="datetime-local" name="datetime" required
+                 value="{{ reservation.datetime.strftime('%Y-%m-%dT%H:%M') }}">
+          <button type="submit" class="btn-primary btn-sm">保存</button>
+          <button type="button" class="btn-text btn-sm" onclick="closeDatetimeEdit()">キャンセル</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="detail-field">
+      <div class="detail-label">診療科</div>
+      <div class="detail-value">{{ reservation.department }}</div>
+    </div>
+
+    <div class="detail-field">
+      <div class="detail-label">担当医</div>
+      <div class="detail-value">{{ reservation.doctor }}</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="detail-section-title">患者情報</div>
+
+    <div class="detail-field">
+      <div class="detail-label">患者名</div>
+      <div class="detail-value">{{ reservation.patient.name }}</div>
+    </div>
+
+    <div class="detail-field">
+      <div class="detail-label">電話番号</div>
+      <div class="detail-value">{{ reservation.patient.phone }}</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="detail-section-title">予約ステータス</div>
+
+    <div class="detail-field">
+      <div class="detail-label">ステータス</div>
+      <div class="detail-value">
+        {% if reservation.status == 'Scheduled' %}
+          <span class="badge badge-scheduled">{{ reservation.status | reservation_status }}</span>
+        {% elif reservation.status == 'Visited' %}
+          <span class="badge badge-visited">{{ reservation.status | reservation_status }}</span>
+        {% elif reservation.status == 'Canceled' %}
+          <span class="badge badge-canceled">{{ reservation.status | reservation_status }}</span>
+        {% else %}
+          {{ reservation.status | reservation_status }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="detail-field detail-image-section">
+      <div class="detail-label">画像</div>
+      {% if reservation.image_filename %}
+        <img class="detail-image"
+             src="{{ url_for('static', filename='uploads/reservations/' + reservation.image_filename) }}"
+             alt="予約画像">
+      {% else %}
+        <div class="detail-image-placeholder">画像なし</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="detail-footer">
+  <a href="{{ url_for('main.reservations_edit', reservation_id=reservation.id) }}" class="btn-outline">詳細を編集</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openDatetimeEdit() {
+  document.getElementById('datetime-display').style.display = 'none';
+  document.getElementById('datetime-edit-form').classList.add('open');
+  const input = document.querySelector('#datetime-edit-form input[type="datetime-local"]');
+  if (input && input.showPicker) {
+    input.showPicker();
+  }
+}
+
+function closeDatetimeEdit() {
+  document.getElementById('datetime-display').style.display = '';
+  document.getElementById('datetime-edit-form').classList.remove('open');
+}
+</script>
+{% endblock %}

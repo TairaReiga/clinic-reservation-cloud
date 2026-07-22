@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    container_name: clinic_web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      FLASK_ENV: production
+      PORT: "8000"
+    volumes:
+      - clinic_data:/app/instance
+      - clinic_uploads:/app/static/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  clinic_data:
+  clinic_uploads:

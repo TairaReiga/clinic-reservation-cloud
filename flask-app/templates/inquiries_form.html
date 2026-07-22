@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% set active_tab = 'inquiries' %}
+
+{% block content %}
+<a href="{{ url_for('main.inquiries_list') }}" class="back-link">&lt; 戻る</a>
+<h1 class="page-title-sm">{{ '問い合わせを編集' if inquiry else '問い合わせを追加' }}</h1>
+
+<form method="post">
+  <div class="form-grid-3">
+    <div>
+      <div class="form-section-title">問い合わせ内容</div>
+
+      <div class="form-group">
+        <label class="form-label" for="user">ユーザー <span class="required">*</span></label>
+        <select class="form-select" id="user" name="user">
+          <option value="">-</option>
+          <option value="admin" selected>管理者</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="datetime">日時 <span class="required">*</span></label>
+        <div class="datetime-wrapper">
+          <input class="form-input datetime-clickable" type="datetime-local" id="datetime" name="datetime" required
+            value="{% if inquiry %}{{ inquiry.datetime.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+          <span class="datetime-icon datetime-icon-clickable" onclick="document.getElementById('datetime').showPicker && document.getElementById('datetime').showPicker()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="subject">件名 <span class="required">*</span></label>
+        <input class="form-input" type="text" id="subject" name="subject" required
+          value="{{ inquiry.subject if inquiry else '' }}">
+      </div>
+    </div>
+
+    <div>
+      <div class="form-section-title">ステータスとメモ</div>
+
+      <div class="form-group">
+        <label class="form-label" for="status">ステータス <span class="required">*</span></label>
+        <select class="form-select" id="status" name="status" required>
+          {% for s in status_choices %}
+            <option value="{{ s }}"
+              {% if inquiry and inquiry.status == s %}selected
+              {% elif not inquiry and s == 'New' %}selected{% endif %}>
+              {{ s | inquiry_status }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="notes">メモ</label>
+        <textarea class="form-textarea" id="notes" name="notes" rows="5">{{ inquiry.notes if inquiry and inquiry.notes else '' }}</textarea>
+      </div>
+    </div>
+
+    <div>
+      <div class="form-section-title">患者情報</div>
+
+      <div class="form-group">
+        <label class="form-label" for="patient_name_or_contact">患者名 / 連絡先 <span class="required">*</span></label>
+        <input class="form-input" type="text" id="patient_name_or_contact" name="patient_name_or_contact" required
+          value="{{ inquiry.patient_name_or_contact if inquiry else '' }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{{ url_for('main.inquiries_list') }}" class="btn-text">キャンセル</a>
+    <button type="submit" class="btn-primary">保存</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .datetime-icon-clickable {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .datetime-icon-clickable:hover { color: var(--green-dark); }
+  .datetime-clickable { cursor: pointer; }
+</style>
+{% endblock %}

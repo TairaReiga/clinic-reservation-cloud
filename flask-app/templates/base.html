@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}クリニック管理システム{% endblock %}</title>
+  <style>
+    :root {
+      --green-dark: #006f57;
+      --green-hover: #005a47;
+      --green-light: #e6f4f0;
+      --bg-page: #ebebeb;
+      --bg-white: #ffffff;
+      --border: #d9d9d9;
+      --border-light: #e8e8e8;
+      --text-primary: #2b2b2b;
+      --text-secondary: #6b6b6b;
+      --text-muted: #999999;
+      --title-gray: #b0b0b0;
+      --error-bg: #fdecea;
+      --error-text: #c0392b;
+      --error-border: #f5c6cb;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 280px;
+    }
+
+    .logo-box {
+      width: 36px;
+      height: 36px;
+      background: var(--green-dark);
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .app-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: background 0.15s;
+    }
+
+    .nav-tab:hover { background: var(--green-light); }
+
+    .nav-tab.active {
+      background: var(--green-dark);
+      color: white;
+    }
+
+    .nav-tab svg { width: 18px; height: 18px; }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+      justify-content: flex-end;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--green-dark);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* ── Main layout ── */
+    .main-content {
+      padding-top: 56px;
+      min-height: 100vh;
+    }
+
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+
+    .content-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+      padding: 28px 32px 32px;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--title-gray);
+      letter-spacing: -0.5px;
+    }
+
+    .page-title-sm {
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--title-gray);
+      margin-bottom: 24px;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: var(--green-dark);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .btn-primary:hover { background: var(--green-hover); }
+
+    .btn-text {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-text:hover { color: var(--text-primary); }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--green-dark);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+
+    /* ── Toolbar row ── */
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      width: 280px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 36px 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+      background: var(--bg-white);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--green-dark);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* ── Status filter tabs ── */
+    .status-tabs {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .status-tab {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-white);
+      color: var(--text-primary);
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .status-tab:first-child { border-radius: 4px 0 0 4px; }
+    .status-tab:last-child { border-radius: 0 4px 4px 0; }
+    .status-tab:not(:first-child) { border-left: none; }
+
+    .status-tab.active {
+      background: var(--green-dark);
+      color: white;
+      border-color: var(--green-dark);
+    }
+
+    .status-tab:hover:not(.active) { background: var(--green-light); }
+
+    /* ── Table ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .data-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-primary);
+    }
+
+    .data-table tbody tr:hover td { background: #fafafa; }
+
+    .sort-icon {
+      display: inline-flex;
+      flex-direction: column;
+      margin-left: 4px;
+      vertical-align: middle;
+      color: var(--text-muted);
+    }
+
+    .sort-icon svg { width: 10px; height: 10px; }
+
+    /* ── Status badges ── */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-scheduled { background: #dbeafe; color: #1d4ed8; }
+    .badge-visited   { background: #d1fae5; color: #047857; }
+    .badge-canceled  { background: #e5e7eb; color: #4b5563; }
+    .badge-new       { background: #ffedd5; color: #c2410c; }
+    .badge-inprogress { background: #dbeafe; color: #1d4ed8; }
+    .badge-resolved  { background: #d1fae5; color: #047857; }
+
+    /* ── Forms ── */
+    .form-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--title-gray);
+      margin-bottom: 28px;
+    }
+
+    .form-card-title svg { color: var(--green-dark); }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-label .required { color: var(--green-dark); }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      background: transparent;
+      color: var(--text-primary);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-bottom-color: var(--green-dark);
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 4px center;
+      padding-right: 20px;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+    }
+
+    .datetime-wrapper {
+      position: relative;
+    }
+
+    .datetime-wrapper input { padding-right: 32px; }
+
+    .datetime-icon {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-left: 8px;
+    }
+
+    .btn-logout:hover {
+      background: var(--green-light);
+      color: var(--green-dark);
+      border-color: var(--green-dark);
+    }
+
+    .flash-success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .table-row-link { cursor: pointer; }
+    .table-row-link:hover td { background: #f5f5f5 !important; }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    /* ── Flash messages ── */
+    .flash-error {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    /* ── Login page ── */
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-page);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 0 24px;
+    }
+
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .login-brand .logo-box {
+      width: 48px;
+      height: 48px;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .login-brand .app-name {
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .login-form { width: 100%; }
+
+    .login-form .form-group { margin-bottom: 24px; }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+    }
+
+    .password-toggle:hover { color: var(--text-primary); }
+
+    .login-form .btn-primary {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .form-grid-3 { grid-template-columns: 1fr; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+      .header-nav { display: none; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% if session.get('user_email') %}
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="logo-box">CM</div>
+      <span class="app-name">クリニック管理システム</span>
+    </div>
+
+    <nav class="header-nav">
+      <a href="{{ url_for('main.patients_list') }}"
+         class="nav-tab {% if active_tab == 'patients' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        患者
+      </a>
+      <a href="{{ url_for('main.reservations_list') }}"
+         class="nav-tab {% if active_tab == 'reservations' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        予約
+      </a>
+      <a href="{{ url_for('main.inquiries_list') }}"
+         class="nav-tab {% if active_tab == 'inquiries' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        問い合わせ
+      </a>
+    </nav>
+
+    <div class="header-user">
+      {% set email = session.get('user_email', '') %}
+      {% set initials = email[:2].upper() if email else 'U' %}
+      <div class="avatar">{{ initials }}</div>
+      <span class="user-name">{{ email.split('@')[0] if email else 'ユーザー' }}</span>
+      <a href="{{ url_for('main.logout') }}" class="btn-logout">ログアウト</a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-wrapper">
+      <div class="content-card">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              {% if category == 'error' %}
+                <div class="flash-error">{{ message }}</div>
+              {% elif category == 'success' %}
+                <div class="flash-success">{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </main>
+  {% else %}
+    {% block login_content %}{% endblock %}
+  {% endif %}
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

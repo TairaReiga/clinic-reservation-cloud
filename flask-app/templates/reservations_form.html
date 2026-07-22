@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% set active_tab = 'reservations' %}
+
+{% block content %}
+<a href="{{ url_for('main.reservations_list') if not reservation else url_for('main.reservations_detail', reservation_id=reservation.id) }}" class="back-link">&lt; 戻る</a>
+<h1 class="page-title-sm">{{ '予約を編集' if reservation else '予約を追加' }}</h1>
+
+<form method="post" enctype="multipart/form-data">
+  <div class="form-grid-3">
+    <div>
+      <div class="form-section-title">予約情報</div>
+
+      <div class="form-group">
+        <label class="form-label" for="datetime">日時 <span class="required">*</span></label>
+        <div class="datetime-wrapper">
+          <input class="form-input datetime-clickable" type="datetime-local" id="datetime" name="datetime" required
+            value="{% if reservation %}{{ reservation.datetime.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+          <span class="datetime-icon datetime-icon-clickable" onclick="document.getElementById('datetime').showPicker && document.getElementById('datetime').showPicker()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="department">診療科 <span class="required">*</span></label>
+        <input class="form-input" type="text" id="department" name="department" required
+          value="{{ reservation.department if reservation else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="doctor">担当医 <span class="required">*</span></label>
+        <input class="form-input" type="text" id="doctor" name="doctor" required
+          value="{{ reservation.doctor if reservation else '' }}">
+      </div>
+    </div>
+
+    <div>
+      <div class="form-section-title">ユーザー / 患者</div>
+
+      <div class="form-group">
+        <label class="form-label" for="user">ユーザー <span class="required">*</span></label>
+        <select class="form-select" id="user" name="user">
+          <option value="">-</option>
+          <option value="admin" selected>管理者</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="patient_id">患者 <span class="required">*</span></label>
+        <select class="form-select" id="patient_id" name="patient_id" required>
+          <option value="">-</option>
+          {% for p in patients %}
+            <option value="{{ p.id }}"
+              {% if reservation and reservation.patient_id == p.id %}selected{% endif %}>
+              {{ p.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="form-section-title">ステータス</div>
+
+      <div class="form-group">
+        <label class="form-label" for="status">ステータス <span class="required">*</span></label>
+        <select class="form-select" id="status" name="status" required>
+          {% for s in status_choices %}
+            <option value="{{ s }}"
+              {% if reservation and reservation.status == s %}selected
+              {% elif not reservation and s == 'Scheduled' %}selected{% endif %}>
+              {{ s | reservation_status }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="image">画像</label>
+        {% if reservation and reservation.image_filename %}
+          <div style="margin-bottom: 8px;">
+            <img src="{{ url_for('static', filename='uploads/reservations/' + reservation.image_filename) }}"
+                 alt="現在の画像" style="max-width: 160px; max-height: 120px; border-radius: 4px; border: 1px solid var(--border-light);">
+          </div>
+        {% endif %}
+        <input class="form-input" type="file" id="image" name="image" accept="image/png,image/jpeg,image/gif,image/webp"
+               style="border: 1px solid var(--border); border-radius: 4px; padding: 8px 12px;">
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">PNG、JPG、GIF、WebP（最大 5MB）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{{ url_for('main.reservations_list') if not reservation else url_for('main.reservations_detail', reservation_id=reservation.id) }}" class="btn-text">キャンセル</a>
+    <button type="submit" class="btn-primary">保存</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .datetime-icon-clickable {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .datetime-icon-clickable:hover { color: var(--green-dark); }
+  .datetime-clickable { cursor: pointer; }
+</style>
+{% endblock %}

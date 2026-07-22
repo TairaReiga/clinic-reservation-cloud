@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: clinic-management-system
+    runtime: docker
+    dockerfilePath: ./flask-app/Dockerfile
+    dockerContext: ./flask-app
+    plan: free
+    region: singapore
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@example.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: clinic-db
+          property: connectionString
+
+databases:
+  - name: clinic-db
+    plan: free
+    region: singapore
+    databaseName: clinic
+    user: clinic

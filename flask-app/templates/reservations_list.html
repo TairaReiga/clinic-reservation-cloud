@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set active_tab = 'reservations' %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">予約</h1>
+  <a href="{{ url_for('main.reservations_new') }}" class="btn-primary">予約を追加</a>
+</div>
+
+<div class="toolbar-row">
+  <form method="get" class="search-box">
+    <input type="text" name="search" placeholder="検索" value="{{ search }}">
+    {% if current_status != 'Any' %}
+      <input type="hidden" name="status" value="{{ current_status }}">
+    {% endif %}
+    <span class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+  </form>
+
+  <div class="status-tabs">
+    {% for tab_value, tab_label in status_tabs %}
+      <a href="{{ url_for('main.reservations_list', status=tab_value, search=search) }}"
+         class="status-tab {% if current_status == tab_value %}active{% endif %}">
+        {{ tab_label }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>日時</th>
+      <th>患者名</th>
+      <th>診療科</th>
+      <th>担当医</th>
+      <th>ステータス</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in reservations %}
+    <tr class="table-row-link" onclick="window.location='{{ url_for('main.reservations_detail', reservation_id=r.id) }}'">
+      <td>{{ r.datetime | fmt_datetime }}</td>
+      <td>{{ r.patient.name }}</td>
+      <td>{{ r.department }}</td>
+      <td>{{ r.doctor }}</td>
+      <td>
+        {% if r.status == 'Scheduled' %}
+          <span class="badge badge-scheduled">{{ r.status | reservation_status }}</span>
+        {% elif r.status == 'Visited' %}
+          <span class="badge badge-visited">{{ r.status | reservation_status }}</span>
+        {% elif r.status == 'Canceled' %}
+          <span class="badge badge-canceled">{{ r.status | reservation_status }}</span>
+        {% else %}
+          {{ r.status | reservation_status }}
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5" style="color: var(--text-muted);">予約が見つかりません。</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

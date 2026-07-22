@@ -8,6 +8,7 @@
 クラウドプラットフォーム実習Ⅱ（レポート5）で定義した要件に沿って、
 
 - Docker コンテナ上で動作する Flask + SQLite 版（日本語 UI）
+- 本番公開は **Render**（Web Service + PostgreSQL）を予定
 
 として、患者・予約・問い合わせを Web ブラウザから一元管理できるように実装しています。
 
@@ -16,97 +17,110 @@
 
 ---
 
-## 1. Docker + Flask 版
+## Live App URL
 
-### 概要
+| 環境 | URL |
+|------|-----|
+| ローカル（開発・デモ） | http://localhost:8000 |
+| 本番（Render） | デプロイ後に Render が発行する URL（例: `https://clinic-management-system.onrender.com`） |
 
-- フレームワーク：Flask 3.0.3（Python 3.11）
-- データベース：SQLite 3（コンテナ内ファイル `clinic.db`）
-- 実行環境：Docker コンテナ（Docker Desktop 上で起動）
-- ローカルアクセス URL：`http://localhost:8000`
-
-### Live App（デプロイ先）
-
-- ローカル環境（開発・デモ用）  
-  - URL：`http://localhost:8000`
-- クラウド環境（Render など）  
-  - URL：※ Render などにデプロイ後に追記予定（例：`https://xxxxx.onrender.com`）
+Render デプロイ手順: [`docs/RENDER_DEPLOY.md`](docs/RENDER_DEPLOY.md)  
+システム構成: [`docs/SYSTEM_ARCHITECTURE.md`](docs/SYSTEM_ARCHITECTURE.md)
 
 ---
 
-### 機能（日本語 UI）
+## ログイン情報
 
-#### 患者管理
+| 項目 | 値 |
+|------|-----|
+| メールアドレス | `admin@example.com`（環境変数 `ADMIN_EMAIL` で変更可） |
+| パスワード | 環境変数 `ADMIN_PASSWORD` で設定（ローカル例: `Admin1234!`） |
 
-- 患者一覧画面
-  - 患者の氏名・電話番号を一覧表示
-  - 患者名での部分一致検索
+---
 
+## 機能（日本語 UI）
+
+### 患者管理
+
+- 患者一覧画面（氏名・電話番号、名前検索）
 - 患者登録画面
-  - 氏名・電話番号を入力して新規患者を登録
 
-#### 予約管理
+### 予約管理
 
-- 予約一覧画面
-  - 予約日時、患者名、診療科、担当医、状態（予約中／来院済み／キャンセル）を一覧表示
-  - 患者名での検索
-  - 状態タブ（すべて／予約中／来院済み／キャンセル）による絞り込み
+- 予約一覧（日時・患者名・診療科・担当医・状態、ステータス絞り込み）
+- 予約登録／編集（画像アップロード対応）
 
-- 予約登録／編集画面
-  - 患者、予約日時、診療科、担当医、ステータス（Scheduled／Visited／Canceled）を入力／変更
-  - ステータスにより「来院前」「来院済み」「キャンセル済み」の状態管理が可能
+### 問い合わせ管理
 
-#### 問い合わせ管理
+- 問い合わせ一覧（件名・連絡先・状態、ステータス絞り込み）
+- 問い合わせ登録／編集（対応メモ）
 
-- 問い合わせ一覧画面
-  - 受付日時、件名、患者名または連絡先、状態（未対応／対応中／完了）を一覧表示
-  - 状態タブ（すべて／未対応／対応中／完了）による絞り込み
+### 認証
 
-- 問い合わせ登録／編集画面
-  - 受付日時、件名、患者名または連絡先、状態（New／In Progress／Resolved）、対応メモ（Notes）を入力／更新
-  - 電話やメールで受けた問い合わせを記録し、対応状況を追跡可能
-
-#### ログイン
-
-- ログイン画面
-  - メールアドレス／パスワードによるログイン
-  - デモ用アカウント例：
-    - Email：`admin@example.com`
-    - Password：`Admin1234!`
-
-- 認証
-  - ログインしていない状態で `/patients` `/reservations` `/inquiries` にアクセスした場合は `/login` にリダイレクト
-  - ログイン中のユーザー情報（メールアドレス）をヘッダに表示
+- メール / パスワードログイン
+- 未ログイン時は `/login` へリダイレクト
 
 ---
 
-## 2. ディレクトリ構成
+## ローカルでの起動方法
 
-- `flask-app/`
-  - `app/`：Flask アプリケーション本体  
-    - `__init__.py`：アプリケーションファクトリ、DB 初期化、ログイン設定など  
-    - `models.py`：Patient / Reservation / Inquiry などのデータモデル定義  
-    - `routes.py`：ログイン／患者／予約／問い合わせの各ルート定義
-  - `templates/`：HTML テンプレート（日本語 UI の画面一式）  
-    - `login.html`：ログイン画面  
-    - `patients_list.html` / `patients_form.html`  
-    - `reservations_list.html` / `reservations_form.html`  
-    - `inquiries_list.html` / `inquiries_form.html`  
-    - `base.html`：共通レイアウト
-  - `Dockerfile`：アプリケーションコンテナ用 Dockerfile
-  - `docker-compose.yml`：ローカル開発用 Docker Compose 設定
-  - `requirements.txt`：Python パッケージ一覧
-  - `run.py`：Flask アプリのエントリポイント
-
-- `docs/`
-  - 要件定義・設計ドキュメント（レポート5・最終レポート用メモ）
-
----
-
-## 3. ローカルでの起動方法
-
-事前に Docker Desktop をインストールしておきます。
+### Docker（推奨）
 
 ```bash
 cd flask-app
+cp .env.example .env   # 必要に応じて編集
 docker compose up --build
+```
+
+→ http://localhost:8000/login
+
+### Python 直接実行
+
+```bash
+cd flask-app
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+FLASK_ENV=development python run.py
+```
+
+---
+
+## 環境変数
+
+| 変数 | 説明 | デフォルト |
+|------|------|-----------|
+| `FLASK_ENV` | `development` / `production` | `development` |
+| `SECRET_KEY` | セッション暗号化キー | （開発用固定値） |
+| `ADMIN_EMAIL` | 管理者メール | `admin@example.com` |
+| `ADMIN_PASSWORD` | 管理者パスワード | `Admin1234!` |
+| `DATABASE_URL` | PostgreSQL 接続 URL（本番） | SQLite（ローカル） |
+| `PORT` | 待ち受けポート | `8000` |
+
+---
+
+## ディレクトリ構成
+
+```
+clinic-reservation-cloud/
+├── render.yaml              # Render Blueprint 定義
+├── docs/
+│   ├── SYSTEM_ARCHITECTURE.md
+│   ├── RENDER_DEPLOY.md
+│   └── implementation.md
+└── flask-app/
+    ├── app/                 # Flask アプリケーション
+    ├── templates/           # Jinja2 テンプレート
+    ├── static/              # 静的ファイル・アップロード画像
+    ├── config.py
+    ├── run.py
+    ├── Dockerfile
+    └── docker-compose.yml
+```
+
+---
+
+## 旧 OutSystems 版
+
+以前の OutSystems Personal Edition 版:  
+https://personal-p2heapy9-dev.outsystems.app/ClinicManagementSystem/Login

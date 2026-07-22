@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set active_tab = 'inquiries' %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">問い合わせ</h1>
+  <a href="{{ url_for('main.inquiries_new') }}" class="btn-primary">問い合わせを追加</a>
+</div>
+
+<div class="toolbar-row">
+  <form method="get" class="search-box">
+    <input type="text" name="search" placeholder="検索" value="{{ search }}">
+    {% if current_status != 'Any' %}
+      <input type="hidden" name="status" value="{{ current_status }}">
+    {% endif %}
+    <span class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+  </form>
+
+  <div class="status-tabs">
+    {% for tab_value, tab_label in status_tabs %}
+      <a href="{{ url_for('main.inquiries_list', status=tab_value, search=search) }}"
+         class="status-tab {% if current_status == tab_value %}active{% endif %}">
+        {{ tab_label }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>日時</th>
+      <th>件名</th>
+      <th>患者名 / 連絡先</th>
+      <th>ステータス</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in inquiries %}
+    <tr class="table-row-link" onclick="window.location='{{ url_for('main.inquiries_edit', inquiry_id=i.id) }}'">
+      <td>{{ i.datetime | fmt_datetime }}</td>
+      <td>{{ i.subject }}</td>
+      <td>{{ i.patient_name_or_contact }}</td>
+      <td>
+        {% if i.status == 'New' %}
+          <span class="badge badge-new">{{ i.status | inquiry_status }}</span>
+        {% elif i.status == 'In Progress' %}
+          <span class="badge badge-inprogress">{{ i.status | inquiry_status }}</span>
+        {% elif i.status == 'Resolved' %}
+          <span class="badge badge-resolved">{{ i.status | inquiry_status }}</span>
+        {% else %}
+          {{ i.status | inquiry_status }}
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="4" style="color: var(--text-muted);">問い合わせが見つかりません。</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
