@@ -29,6 +29,7 @@
         </span>
       </th>
       <th>電話番号</th>
+      <th style="width: 80px;"></th>
     </tr>
   </thead>
   <tbody>
@@ -36,12 +37,32 @@
     <tr>
       <td>{{ p.name }}</td>
       <td>{{ p.phone }}</td>
+      <td>
+        <form method="post" action="{{ url_for('main.patients_delete', patient_id=p.id) }}"
+              onsubmit="return confirm('{{ p.name }} を削除しますか？');">
+          <button type="submit" class="btn-delete">削除</button>
+        </form>
+      </td>
     </tr>
     {% else %}
     <tr>
-      <td colspan="2" style="color: var(--text-muted);">患者が見つかりません。</td>
+      <td colspan="3" style="color: var(--text-muted);">患者が見つかりません。</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .btn-delete {
+    background: none;
+    border: none;
+    color: #c0392b;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .btn-delete:hover { text-decoration: underline; }
+</style>
 {% endblock %}

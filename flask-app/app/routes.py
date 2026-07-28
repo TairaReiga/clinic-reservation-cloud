@@ -139,6 +139,26 @@ def patients_new():
     return render_template("patients_form.html", name="", phone="")
 
 
+@main_bp.route("/patients/<int:patient_id>/delete", methods=["POST"])
+@login_required
+def patients_delete(patient_id: int):
+    patient = Patient.query.get_or_404(patient_id)
+
+    for reservation in list(patient.reservations):
+        if reservation.image_filename:
+            image_path = os.path.join(
+                current_app.config["UPLOAD_FOLDER"], reservation.image_filename
+            )
+            if os.path.exists(image_path):
+                os.remove(image_path)
+        db.session.delete(reservation)
+
+    db.session.delete(patient)
+    db.session.commit()
+    flash("患者を削除しました。", "success")
+    return redirect(url_for("main.patients_list"))
+
+
 @main_bp.route("/reservations")
 @login_required
 def reservations_list():
