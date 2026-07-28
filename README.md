@@ -22,7 +22,7 @@
 | 環境 | URL |
 |------|-----|
 | ローカル（開発・デモ） | http://localhost:8000 |
-| 本番（Render） | デプロイ後に Render が発行する URL（例: `https://clinic-management-system.onrender.com`） |
+| 本番（Render） | デプロイ後に Render が発行する URL: https://clinic-management-system-b41c.onrender.com|
 
 Render デプロイ手順: [`docs/RENDER_DEPLOY.md`](docs/RENDER_DEPLOY.md)  
 システム構成: [`docs/SYSTEM_ARCHITECTURE.md`](docs/SYSTEM_ARCHITECTURE.md)
