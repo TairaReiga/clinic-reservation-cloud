@@ -37,6 +37,7 @@
       <th>件名</th>
       <th>患者名 / 連絡先</th>
       <th>ステータス</th>
+      <th style="width: 80px;"></th>
     </tr>
   </thead>
   <tbody>
@@ -56,10 +57,16 @@
           {{ i.status | inquiry_status }}
         {% endif %}
       </td>
+      <td onclick="event.stopPropagation()">
+        <form method="post" action="{{ url_for('main.inquiries_delete', inquiry_id=i.id) }}"
+              onsubmit="return confirm('この問い合わせを削除しますか？');">
+          <button type="submit" class="btn-delete">削除</button>
+        </form>
+      </td>
     </tr>
     {% else %}
     <tr>
-      <td colspan="4" style="color: var(--text-muted);">問い合わせが見つかりません。</td>
+      <td colspan="5" style="color: var(--text-muted);">問い合わせが見つかりません。</td>
     </tr>
     {% endfor %}
   </tbody>

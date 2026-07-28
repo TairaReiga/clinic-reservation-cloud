@@ -139,19 +139,23 @@ def patients_new():
     return render_template("patients_form.html", name="", phone="")
 
 
+def _delete_reservation(reservation: Reservation) -> None:
+    if reservation.image_filename:
+        image_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"], reservation.image_filename
+        )
+        if os.path.exists(image_path):
+            os.remove(image_path)
+    db.session.delete(reservation)
+
+
 @main_bp.route("/patients/<int:patient_id>/delete", methods=["POST"])
 @login_required
 def patients_delete(patient_id: int):
     patient = Patient.query.get_or_404(patient_id)
 
     for reservation in list(patient.reservations):
-        if reservation.image_filename:
-            image_path = os.path.join(
-                current_app.config["UPLOAD_FOLDER"], reservation.image_filename
-            )
-            if os.path.exists(image_path):
-                os.remove(image_path)
-        db.session.delete(reservation)
+        _delete_reservation(reservation)
 
     db.session.delete(patient)
     db.session.commit()
@@ -242,6 +246,16 @@ def reservations_visit(reservation_id: int):
     db.session.commit()
     flash("来院済みに更新しました。", "success")
     return redirect(url_for("main.reservations_detail", reservation_id=reservation_id))
+
+
+@main_bp.route("/reservations/<int:reservation_id>/delete", methods=["POST"])
+@login_required
+def reservations_delete(reservation_id: int):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    _delete_reservation(reservation)
+    db.session.commit()
+    flash("予約を削除しました。", "success")
+    return redirect(url_for("main.reservations_list"))
 
 
 @main_bp.route("/reservations/<int:reservation_id>/datetime", methods=["POST"])
@@ -354,6 +368,16 @@ def inquiries_edit(inquiry_id: int):
         status_choices=InquiryStatus.CHOICES,
         inquiry=inquiry,
     )
+
+
+@main_bp.route("/inquiries/<int:inquiry_id>/delete", methods=["POST"])
+@login_required
+def inquiries_delete(inquiry_id: int):
+    inquiry = Inquiry.query.get_or_404(inquiry_id)
+    db.session.delete(inquiry)
+    db.session.commit()
+    flash("問い合わせを削除しました。", "success")
+    return redirect(url_for("main.inquiries_list"))
 
 
 def _save_inquiry(inquiry: Inquiry | None = None):
